@@ -34,12 +34,17 @@ class AppConfig {
 import 'package:fpdart/fpdart.dart';
 
 sealed class Failure {
-  const Failure(this.message);
+  const Failure();
+}
+
+final class DatabaseFailure extends Failure {
+  const DatabaseFailure(this.message);
   final String message;
 }
 
-class DatabaseFailure extends Failure {
-  const DatabaseFailure(super.message);
+final class NetworkFailure extends Failure {
+  const NetworkFailure(this.message);
+  final String message;
 }
 ```
 
