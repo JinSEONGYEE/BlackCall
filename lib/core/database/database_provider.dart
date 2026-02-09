@@ -8,7 +8,10 @@ part 'database_provider.g.dart';
 ///
 /// This provider creates a singleton instance of [AppDatabase]
 /// that will be disposed when the provider is disposed.
-@riverpod
+/// 
+/// Note: keepAlive is set to true to ensure the database remains
+/// open throughout the app lifecycle and is not auto-disposed.
+@Riverpod(keepAlive: true)
 AppDatabase appDatabase(AppDatabaseRef ref) {
   final database = AppDatabase();
   

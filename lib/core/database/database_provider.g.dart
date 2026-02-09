@@ -12,10 +12,13 @@ String _$appDatabaseHash() => r'5f8e3c2a1b9d7e4f6a8c0b2d4e6f8a0c';
 ///
 /// This provider creates a singleton instance of [AppDatabase]
 /// that will be disposed when the provider is disposed.
+/// 
+/// Note: keepAlive is set to true to ensure the database remains
+/// open throughout the app lifecycle and is not auto-disposed.
 ///
 /// Copied from [appDatabase].
 @ProviderFor(appDatabase)
-final appDatabaseProvider = AutoDisposeProvider<AppDatabase>.internal(
+final appDatabaseProvider = Provider<AppDatabase>.internal(
   appDatabase,
   name: r'appDatabaseProvider',
   debugGetCreateSourceHash:
@@ -24,7 +27,7 @@ final appDatabaseProvider = AutoDisposeProvider<AppDatabase>.internal(
   allTransitiveDependencies: null,
 );
 
-typedef AppDatabaseRef = AutoDisposeProviderRef<AppDatabase>;
+typedef AppDatabaseRef = ProviderRef<AppDatabase>;
 String _$testDatabaseHash() => r'7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d';
 
 /// Provides a test database instance with in-memory storage
