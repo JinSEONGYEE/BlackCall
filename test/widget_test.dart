@@ -6,20 +6,22 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:voice_phishing_app/main.dart';
 
 void main() {
-  testWidgets('App launches successfully', (WidgetTester tester) async {
+  testWidgets('App launches with splash screen', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const VoicePhishingApp());
+    await tester.pumpWidget(const ProviderScope(child: VoicePhishingApp()));
 
-    // Verify that the app title is displayed.
-    expect(find.text('Voice Phishing Prevention App'), findsOneWidget);
-    expect(find.text('Clean Architecture Setup Complete'), findsOneWidget);
+    // Verify that the splash screen text 'Black' and 'all' are displayed.
+    // (RichText pieces are found as total text in some finders, or we check for parts)
+    expect(find.textContaining('Black'), findsOneWidget);
+    expect(find.textContaining('all'), findsOneWidget);
     
-    // Verify that the phone icon is displayed.
-    expect(find.byIcon(Icons.phone_in_talk), findsOneWidget);
+    // Verify that the app logo image is present.
+    expect(find.byType(Image), findsWidgets);
   });
 }

@@ -50,3 +50,13 @@ class ServerFailure extends Failure {
 class ValidationFailure extends Failure {
   const ValidationFailure(super.message);
 }
+
+/// Failure related to database operations
+class DatabaseFailure extends Failure {
+  const DatabaseFailure(super.message);
+}
+
+/// Failure related to TFLite operations
+class TFLiteFailure extends Failure {
+  const TFLiteFailure(super.message);
+}
