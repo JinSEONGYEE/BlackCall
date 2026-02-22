@@ -1,4 +1,12 @@
 {
     "$schema": "https://railway.app/railway.schema.json",
-    "rootDirectory": "server"
+    "rootDirectory": "server",
+    "build": {
+        "builder": "DOCKERFILE"
+    },
+    "deploy": {
+        "startCommand": "npm run start:prod",
+        "healthcheckPath": "/",
+        "restartPolicyType": "ON_FAILURE"
+    }
 }
