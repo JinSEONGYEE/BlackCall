@@ -1,8 +1,8 @@
 {
     "$schema": "https://railway.app/railway.schema.json",
-    "rootDirectory": "server",
     "build": {
-        "builder": "DOCKERFILE"
+        "builder": "DOCKERFILE",
+        "dockerfilePath": "server/Dockerfile"
     },
     "deploy": {
         "startCommand": "npm run start:prod",
