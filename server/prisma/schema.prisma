@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  kakaoId   String   @unique
+  email     String?
+  nickname  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+
+  WhitelistEntry WhitelistEntry[]
+  DetectionHistory DetectionHistory[]
+  AppSettings    AppSettings?
+}
+
+model FraudPattern {
+  id          Int      @id @default(autoincrement())
+  patternType String   @map("pattern_type")
+  keywords    String   // Comma-separated or serialized
+  weight      Float    @default(1.0)
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("fraud_patterns")
+}
+
+model TfliteModel {
+  id          Int      @id @default(autoincrement())
+  version     String   @unique
+  name        String
+  description String?
+  fileUrl     String   @map("file_url")
+  hash        String   // For integrity check
+  isActive    Boolean  @default(false) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("tflite_models")
+}
+
+model WhitelistEntry {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @map("user_id")
+  phoneNumberHash String   @map("phone_number_hash")
+  contactName     String?  @map("contact_name")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, phoneNumberHash])
+  @@map("whitelist_entries")
+}
+
+
+model DetectionHistory {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @map("user_id")
+  phoneNumberHash String?  @map("phone_number_hash")
+  detectedAt      DateTime @default(now()) @map("detected_at")
+  detectionType   String   @map("detection_type") // e.g., "VOICE_KEYWORD", "ML_MODEL"
+  confidence      Float?
+  details         String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("detection_history")
+}
+
+model AppSettings {
+  id                Int      @id @default(autoincrement())
+  userId            Int      @unique @map("user_id")
+  isDetectionEnabled Boolean  @default(true) @map("is_detection_enabled")
+  sensitivityLevel  String   @default("NORMAL") @map("sensitivity_level")
+  isReportingEnabled Boolean  @default(true) @map("is_reporting_enabled")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("app_settings")
+}

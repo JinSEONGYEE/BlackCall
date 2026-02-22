@@ -1,0 +1,64 @@
+import 'package:drift/drift.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:voice_phishing_app/core/database/app_database.dart';
+import 'package:voice_phishing_app/core/database/database_provider.dart';
+import 'package:voice_phishing_app/features/voice_analysis/domain/entities/fraud_pattern_detected_event.dart';
+import 'package:voice_phishing_app/features/voice_analysis/domain/entities/detection_history_item.dart';
+
+part 'fraud_pattern_repository.g.dart';
+
+@Riverpod(keepAlive: true)
+FraudPatternRepository fraudPatternRepository(Ref ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return FraudPatternRepository(db);
+}
+
+/// Repository to manage fraud pattern detection history
+class FraudPatternRepository {
+  final AppDatabase _db;
+
+  FraudPatternRepository(this._db);
+
+  /// Save a detected fraud pattern
+  Future<int> savePattern(FraudPatternDetectedEvent event, int? callLogId) async {
+    print('💾 FraudPatternRepository: Saving pattern ${event.patternType}');
+    return await _db.into(_db.fraudPatternTable).insert(
+      FraudPatternTableCompanion.insert(
+        patternType: event.patternType,
+        detectedKeywords: event.contributingKeywords.join(', '),
+        confidence: event.confidence,
+        timestamp: event.timestamp,
+        callLogId: callLogId != null ? Value(callLogId) : const Value.absent(),
+      ),
+    );
+  }
+
+  /// Get all fraud detection events linked with call log information
+  Future<List<DetectionHistoryItem>> getDetectionHistory() async {
+    final query = _db.select(_db.fraudPatternTable).join([
+      leftOuterJoin(
+        _db.callLogTable,
+        _db.callLogTable.id.equalsExp(_db.fraudPatternTable.callLogId),
+      ),
+    ]);
+
+    print('🔍 FraudPatternRepository: Querying database for detection history...');
+    final results = await query.get();
+    print('🔍 FraudPatternRepository: Found ${results.length} detection history items');
+
+    return results.map((row) {
+      final pattern = row.readTable(_db.fraudPatternTable);
+      final callLog = row.readTableOrNull(_db.callLogTable);
+
+      return DetectionHistoryItem(
+        id: pattern.id,
+        patternType: pattern.patternType,
+        detectedKeywords: pattern.detectedKeywords,
+        confidence: pattern.confidence,
+        timestamp: pattern.timestamp,
+        phoneNumber: callLog?.phoneNumber ?? 'Unknown',
+        formattedNumber: callLog?.formattedNumber ?? 'Unknown',
+      );
+    }).toList();
+  }
+}
