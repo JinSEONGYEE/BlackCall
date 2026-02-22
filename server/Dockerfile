@@ -37,4 +37,4 @@ EXPOSE 3000
 ENV NODE_ENV=production
 
 # Start command - push schema then start server
-CMD npx prisma db push --skip-generate && npm run start:prod
+CMD npx prisma db push && npm run start:prod
