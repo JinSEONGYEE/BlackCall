@@ -7,7 +7,12 @@ import { PrismaPg } from '@prisma/adapter-pg';
 export class PrismaService extends PrismaClient implements OnModuleInit {
     constructor() {
         const url = process.env.DATABASE_URL;
-        const pool = new Pool({ connectionString: url });
+        const pool = new Pool({
+            connectionString: url,
+            ssl: process.env.NODE_ENV === 'production'
+                ? { rejectUnauthorized: false }
+                : false,
+        });
         const adapter = new PrismaPg(pool);
         super({ adapter });
     }
