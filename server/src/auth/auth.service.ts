@@ -47,14 +47,16 @@ export class AuthService {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to verify Kakao token');
+                const body = await response.text();
+                throw new Error(`Failed to verify Kakao token: ${response.status} ${body}`);
             }
 
             const profile = await response.json();
             const user = await this.validateKakaoUser(profile);
             return this.login(user);
         } catch (e) {
-            throw new Error('Kakao authentication failed');
+            console.error('[Auth] loginWithKakaoToken error:', e);
+            throw new Error(`Kakao authentication failed: ${e.message}`);
         }
     }
 
